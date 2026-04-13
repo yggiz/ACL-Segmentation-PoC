@@ -1,0 +1,116 @@
+!
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname R1
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+license udi pid CISCO2901/K9 sn FTX1524F1BO-
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/0.10
+ description Clinical_Gateway
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ ip access-group CLINICAL_ACL in
+!
+interface GigabitEthernet0/0.20
+ description IoT_Gateway
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+ ip access-group IOT_ACL in
+!
+interface GigabitEthernet0/0.30
+ description Admin_Gateway
+ encapsulation dot1Q 30
+ ip address 192.168.30.1 255.255.255.0
+ ip access-group ADMIN_ACL in
+!
+interface GigabitEthernet0/0.40
+ description Server_Gateway
+ encapsulation dot1Q 40
+ ip address 192.168.40.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+ip access-list extended ADMIN_ACL
+ deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny ip 192.168.30.0 0.0.0.255 192.168.40.0 0.0.0.255
+ permit ip 192.168.30.0 0.0.0.255 any
+ip access-list extended IOT_ACL
+ deny ip 192.168.20.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny ip 192.168.20.0 0.0.0.255 192.168.30.0 0.0.0.255
+ deny ip 192.168.20.0 0.0.0.255 192.168.40.0 0.0.0.255
+ permit ip 192.168.20.0 0.0.0.255 any
+ip access-list extended CLINICAL_ACL
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.40.10 eq www
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.40.10 eq 443
+ deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+ deny ip 192.168.10.0 0.0.0.255 192.168.40.0 0.0.0.255
+ permit ip 192.168.10.0 0.0.0.255 any
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+
