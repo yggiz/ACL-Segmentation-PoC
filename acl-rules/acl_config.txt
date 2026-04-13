@@ -1,0 +1,68 @@
+! ============================================================
+! ACL Configuration for Finn's Urgent Care — Inter-VLAN 
+! Segmentation (Applied on R1, Cisco 2901)
+! ============================================================
+! Purpose: Enforce network segmentation between clinical,
+! administrative, IoT, and server VLANs to prevent lateral
+! movement following endpoint compromise.
+!
+! Applied: Inbound on each sub-interface (router-on-a-stick)
+! ============================================================
+
+! === ADMIN_ACL ===
+! Policy: Admin/HR (VLAN 30) cannot reach any other internal
+! VLAN. Prevents lateral movement from compromised admin
+! endpoints to clinical systems, medical IoT, or servers.
+!
+ip access-list extended ADMIN_ACL
+ deny   ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny   ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny   ip 192.168.30.0 0.0.0.255 192.168.40.0 0.0.0.255
+ permit ip 192.168.30.0 0.0.0.255 any
+
+! === IOT_ACL ===
+! Policy: Medical IoT (VLAN 20) is fully isolated from all
+! other VLANs. Infusion pumps and other devices cannot
+! communicate outside their segment.
+!
+ip access-list extended IOT_ACL
+ deny   ip 192.168.20.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny   ip 192.168.20.0 0.0.0.255 192.168.30.0 0.0.0.255
+ deny   ip 192.168.20.0 0.0.0.255 192.168.40.0 0.0.0.255
+ permit ip 192.168.20.0 0.0.0.255 any
+
+! === CLINICAL_ACL ===
+! Policy: Clinical (VLAN 10) can access EHR-Server via
+! HTTP/HTTPS only. All other cross-VLAN traffic is denied.
+! This enforces least privilege at the protocol level.
+!
+! NOTE: Specific TCP permits MUST appear before the general
+! deny for VLAN 40, otherwise first-match processing will
+! block the HTTP traffic.
+!
+ip access-list extended CLINICAL_ACL
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.40.10 eq 80
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.40.10 eq 443
+ deny   ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny   ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+ deny   ip 192.168.10.0 0.0.0.255 192.168.40.0 0.0.0.255
+ permit ip 192.168.10.0 0.0.0.255 any
+
+! === Apply to sub-interfaces ===
+interface GigabitEthernet0/0.10
+ ip access-group CLINICAL_ACL in
+
+interface GigabitEthernet0/0.20
+ ip access-group IOT_ACL in
+
+interface GigabitEthernet0/0.30
+ ip access-group ADMIN_ACL in
+
+! ============================================================
+! Production Notes:
+! - In production (IOS XE / PAN-OS), add "log" keyword to
+!   deny statements for syslog forwarding to SIEM
+! - Packet Tracer does not support "log" keyword; use
+!   "show ip access-lists" to verify match counters instead
+! - Review and audit ACL rules quarterly per O&M plan
+! ============================================================
