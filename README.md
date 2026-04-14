@@ -37,7 +37,7 @@ The last row is critical — **legitimate clinical access is preserved** while a
                     │   R1     │  Cisco 2901
                     │ (Router) │  Inter-VLAN Routing + ACLs
                     └────┬─────┘
-                        │ Trunk (802.1Q)
+                         │ Trunk (802.1Q)
                     ┌────┴─────┐
                     │   ASW1   │  Cisco 2960
                     │ (Switch) │  VLAN Enforcement
@@ -45,11 +45,11 @@ The last row is critical — **legitimate clinical access is preserved** while a
                        │ │ │ │
           ┌────────────┘ │ │ └────────────┐
           │              │ │              │
-    ┌─────┴──────┐ ┌─────┴─┴────┐   ┌─────┴──────┐
-    │ VLAN 10    │ │ VLAN 30    │   │ VLAN 40    │
-    │ Clinical   │ │ Admin/HR   │   │ Server     │
-    │ Clinical-PC│ │ Admin-PC   │   │ EHR-Server │
-    └────────────┘ │ Attacker-PC│   └────────────┘
+    ┌─────┴──────┐ ┌─────┴─┴────┐  ┌─────┴──────┐
+    │ VLAN 10    │ │ VLAN 30    │  │ VLAN 40    │
+    │ Clinical   │ │ Admin/HR   │  │ Server     │
+    │ Clinical-PC│ │ Admin-PC   │  │ EHR-Server │
+    └────────────┘ │ Attacker-PC│  └────────────┘
                    └────────────┘
           ┌────────────┐
           │ VLAN 20    │
@@ -65,12 +65,12 @@ The last row is critical — **legitimate clinical access is preserved** while a
 | 10 | Clinical Network | 192.168.10.0/24 | 192.168.10.1 | Clinical-PC (.10) |
 | 20 | IoT / Medical | 192.168.20.0/24 | 192.168.20.1 | IoT-Pump (.10) |
 | 30 | Admin / HR | 192.168.30.0/24 | 192.168.30.1 | Admin-PC (.10), Attacker-PC (.50) |
-| 40 | Server / Data | 192.168.40.0/24 | 192.168.40.1 | EHQ-Server (.10) |
+| 40 | Server / Data | 192.168.40.0/24 | 192.168.40.1 | EHR-Server (.10) |
 
 ## Repository Structure
 
 ```
-├── README.md                         # This file
+├── README.md                          # This file
 ├── LESSONS_LEARNED.md                 # Troubleshooting journal and areas of learning
 ├── docs/
 │   └── PoC_Report.docx                # Full PoC report with embedded screenshots
